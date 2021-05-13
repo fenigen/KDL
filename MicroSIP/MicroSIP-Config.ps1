@@ -1,11 +1,18 @@
 ﻿<# README
+Имя файла:        1.0.0.5 — MicroSIP-Config.ps1
+
 Copyright:        fenigen
 License:          Apache License 2.0 
 License URL:      http://www.apache.org/licenses/LICENSE-2.0
-Author:           NFetisov
+Author:           NFetisov@kdl.ru
 
 Version:          1.0.0.5
 File Description: Автоматическая конфигурация MicroSIP
+Product Name:     MicroSIP for KDL
+Использование:    KDL Клинико-диагностические лаборатории
+
+Описание:
+Формирует файл конфигурации с указанием учетной записи (данные берутся из Active Directory). Выводится ярлык на рабочем столе. Добавляется задача в Планировщик на регулярное обновление (MicroSIP-Update)
 #>
 
 <# История изменений:
@@ -24,11 +31,18 @@ Write-Host " "
 
 ##### START #####
 ##### Переменные среды #####
-$label = " "
-$domain = " "
+# Задаем переменные
+$label = " "              # Наименование УЗ
+$domain = " "  # Адрес домена
+$SipServer = " " # Адрес и порт SIP сервера телефонии
+$schtasks = "MicroSIP"  # Имя задачи в Планировщике
 
-$User = $env:UserName
-$path = "C:\Users\"+$User+"\Prog\MicroSIP"
+# Формирование переменных
+$User = $env:UserName                               # Получаем имя УЗ Windows
+$path = "C:\Users\"+$User+"\MicroSIP"      # Путь хранения программы
+$FileUpdate = "C:\Prog\MicroSIP-Update.exe"
+$source = $path+"\microsip.exe"
+$target = 'C:\Users\'+$User+'\Desktop\MicroSIP.lnk'
 
 ### ТЕСТЫ #####
 #Тест связи с доменом
@@ -161,9 +175,9 @@ lastCallHasVideo=0
 
 [Account1]
 label=#NAMELABEL#
-server=SERVER
+server=#SIPSERVER#
 proxy=
-domain=SERVER
+domain=#SIPSERVER#
 username=#NUMBERUSER#
 password=#NUMBERUSER#
 authID=#NUMBERUSER#
@@ -186,31 +200,30 @@ disableSessionTimer=1
 # Производим замены
 $ini = $ini -replace "#NUMBERUSER#", $NUMBER
 $ini = $ini -replace "#NAMELABEL#", $label
+$ini = $ini -replace "#SIPSERVER#", $SipServer
+
 # Сохраняем
 $ini | Out-File -FilePath "$path\microsip.ini" -Encoding UTF8
 Write-Host ":-) Конфигурация сохранена в файл INI" -ForegroundColor black -BackgroundColor green
 
 ##### СТАРТУЕМ #####
-Copy-Item -Path "$path\Install\MicroSIP-Update.exe" -Destination "C:\Prog\MicroSIP-Update.exe" -Force
+Copy-Item -Path "$path\Install\MicroSIP-Update.exe" -Destination $FileUpdate -Force
 sleep 2
-Start "C:\KDL_Prog\MicroSIP-Update.exe"
+Start $FileUpdate
 
 # Создаем ярлык
-$source = "C:\Users\"+$User+"\Prog\MicroSIP\microsip.exe"
-$target = 'C:\Users\'+$User+'\Desktop\MicroSIP.lnk'
 $WshShell = New-Object -comObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut($target)
 $Shortcut.TargetPath = $source
 $Shortcut.Save()
 
 # Используем конфигурацию
-$EXE = $path+'\MicroSIP.exe'
 Start-Process -FilePath "powershell" -Verb RunAs {
-    New-NetFirewallRule -DisplayName “MicroSIP” -Direction Inbound -Program $EXE -Action Allow
+    New-NetFirewallRule -DisplayName “MicroSIP” -Direction Inbound -Program $source -Action Allow
     exit
     }
 
-Start $EXE
+Start $source
 Start-Process -FilePath "powershell" -Verb RunAs {
     sleep 1 
     Stop-Process -processname microsip
@@ -218,22 +231,19 @@ Start-Process -FilePath "powershell" -Verb RunAs {
 }
 
 #Правим планировщик
-#if ((schtasks /query /tn KDL_MicroSIP) -eq "*Ошибка*" -or "*Error*"){Write-Host ":-D"}
 Start-Process -FilePath "powershell" -Verb RunAs {
-    schtasks /DELETE /tn KDL_MicroSIP /F
+    schtasks /DELETE /tn $schtasks /F
     exit
     }
 
-#$Task = $path+'\Install\KDL_MicroSIP.xml'
 Start-Process -FilePath "powershell" -Verb RunAs {
-    #schtasks /Create /XML $Task /tn KDL_MicroSIP
-    schtasks /Create /tn KDL_MicroSIP /TR "C:\Prog\MicroSIP-Update.exe" /SC WEEKLY
+    schtasks /Create /tn $schtasks /TR $FileUpdate /SC WEEKLY
     exit
     }
 
 # Запускаем
 sleep 1
-Start $EXE
+Start $source
 
 ##### END #####
 Write-Host " "

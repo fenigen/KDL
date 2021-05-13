@@ -4,8 +4,14 @@ License:          Apache License 2.0
 License URL:      http://www.apache.org/licenses/LICENSE-2.0
 Author:           NFetisov
 
-Version:          1.0.0.2
+Version:          1.0.0.4
 File Description: Выгрузка телефонного справочника для MicroSIP
+Product Name:     MicroSIP for 
+
+Описание:
+Данный скрипт, по задаче в Планировщике осуществляет выгрузку контактных данных из Active Directory и формирует телефонный справочник в виде XML, сохраняя на файловом ресурсе.
+
+Для работы необходимы права администратора (для запуска модуля activedirectory)
 #>
 
 <# История изменений:
@@ -26,10 +32,14 @@ Write-Host " "
 # Подключение подулей
 Import-module activedirectory
 
+
 # Объявляем переменные
-$ou = " "
-$file = " "
+$ou = " "            # ou где брать контактные данные
+$file = " "          # Путь для сохранения
+
+# Задаем переменные
 $exp = @()
+
 
 ##### ФОРМИРОВАНИЕ #####
 # Получаем данные

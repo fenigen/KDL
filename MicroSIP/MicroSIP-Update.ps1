@@ -6,6 +6,10 @@ Author:           NFetisov
 
 Version:          1.0.0.3
 File Description: Обновление телефонного справочника и проверка необходимости обновления программы
+Product Name:     MicroSIP for 
+
+Описание:
+Обновление телефонного справочника. Проверка актуальности версии MicroSIP (расположенной на файловом ресурсе). Запуск обновления.
 #>
 
 <# История изменений:
@@ -21,8 +25,16 @@ Write-Host "##############################################################" -For
 Write-Host " "
 
 ##### START #####
+# Формирование переменных
+$Networkpath = "N:\"         # Точка монтирования сетевого диска
+$Networkpath2 = "N:"
+$FS = " " # Путь, для монирования
+$DIR = '\MicroSIP\'    # Рабочая директория
+$FileUpdate = "\MicroSIP-Update.ini"
+$FileContact = "\Contacts.xml"
+
 ### Проверка и по необходиомсти подключение сетевого диска
-$Networkpath = "N:\" 
+ 
 $pathExists = Test-Path -Path $Networkpath
 
 If ($pathExists)  {
@@ -30,7 +42,7 @@ If ($pathExists)  {
 }
 
 else {
-    (new-object -com WScript.Network).MapNetworkDrive("N:"," serv")
+    (new-object -com WScript.Network).MapNetworkDrive($Networkpath2,$FS)
     Write-Host ":-) Путь создан" -ForegroundColor black -BackgroundColor green
 }
 
@@ -39,19 +51,19 @@ $UserPach = Get-Childitem -Path C:\Users -directory # Получением по�
 Write-Host ":-) Получили список каталогов" -ForegroundColor black -BackgroundColor green
 
 ForEach ($item in $UserPach.FullName){
-    $Pach = $item+'\KDL_Prog\MicroSIP\'
+    $Pach = $item+$DIR
     if (Test-Path $Pach){
         Write-Host ":-| MicroSIP есть в папке: $Pach" -ForegroundColor black -BackgroundColor green
 
         # Обновляем программу
-        if ((get-content \MicroSIP-Update.ini) -ne (get-content $Pach\MicroSIP-Update.ini)) {
+        if ((get-content $FileUpdate) -ne (get-content $Pach\MicroSIP-Update.ini)) {
             Write-Host ":-( Требуется обновление" -ForegroundColor black -BackgroundColor red
             start "$Pach\MicroSIP-UpdateUser.exe"
             }
         else {Write-Host ":-) Актуальная версия" -ForegroundColor black -BackgroundColor green}
 
         # Обновляем справочник
-        Copy-Item -Path " \Contacts.xml" -Destination "$Pach\Contacts.xml" -Force
+        Copy-Item -Path $FileContact -Destination "$Pach\Contacts.xml" -Force
         Write-Host ":-) Справочник обновлен" -ForegroundColor black -BackgroundColor green
         }
     }

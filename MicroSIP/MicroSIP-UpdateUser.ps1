@@ -6,6 +6,10 @@ Author:           NFetisov
 
 Version:          1.0.0.0
 File Description: Обновление программы MicroSIP
+Product Name:     MicroSIP for
+
+Описание
+Версии MicroSIP (расположенной на файловом ресурсе) для конкретного пользователя.
 #>
 
 <# История изменений:
@@ -21,6 +25,10 @@ Write-Host "##############################################################" -For
 Write-Host " "
 
 ##### START #####
+# Задаем переменные:
+$sourcefile = "\MicroSIP.exe"
+
+### ОБРАБОТКА
 Write-Host ":-) Скрипт запущен из папки: " $PSScriptRoot  -ForegroundColor black -BackgroundColor green
 
 #   Install 7zip module
@@ -31,7 +39,6 @@ Set-PSRepository -Name 'PSGallery' -SourceLocation "$PSScriptRoot\Install" -Inst
 Install-Module -Name 7Zip4PowerShell -Force
 
 #   Extract 7zip file
-$sourcefile = "C:\KDL_Prog\Temp\MicroSIP.7z"
 Expand-7Zip -ArchiveFileName $sourcefile -TargetPath $PSScriptRoot
 
 Start "$PSScriptRoot\microsip.exe"
