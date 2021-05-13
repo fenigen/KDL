@@ -1,15 +1,12 @@
 ﻿<# README
-Имя файла:        1.0.0.5 — MicroSIP-Config.ps1
-
 Copyright:        fenigen
 License:          Apache License 2.0 
 License URL:      http://www.apache.org/licenses/LICENSE-2.0
-Author:           NFetisov@kdl.ru
+Author:           NFetisov
 
 Version:          1.0.0.5
 File Description: Автоматическая конфигурация MicroSIP
-Product Name:     MicroSIP for KDL
-Использование:    KDL Клинико-диагностические лаборатории
+Product Name:     MicroSIP for 
 
 Описание:
 Формирует файл конфигурации с указанием учетной записи (данные берутся из Active Directory). Выводится ярлык на рабочем столе. Добавляется задача в Планировщик на регулярное обновление (MicroSIP-Update)
@@ -39,7 +36,7 @@ $schtasks = "MicroSIP"  # Имя задачи в Планировщике
 
 # Формирование переменных
 $User = $env:UserName                               # Получаем имя УЗ Windows
-$path = "C:\Users\"+$User+"\MicroSIP"      # Путь хранения программы
+$path = "C:\Users\"+$User+"\Prog\MicroSIP"      # Путь хранения программы
 $FileUpdate = "C:\Prog\MicroSIP-Update.exe"
 $source = $path+"\microsip.exe"
 $target = 'C:\Users\'+$User+'\Desktop\MicroSIP.lnk'
